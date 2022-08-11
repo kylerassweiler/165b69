@@ -1,6 +1,35 @@
 import PropTypes from "prop-types";
+import { useMemo } from "react";
 
 export const DOTS = "...";
+
+const getPagination = (currentPage, totalCount, pageSize) => {
+  const lastPage = Math.ceil(totalCount / pageSize);
+  const data = [1];
+  if (currentPage > 1 && currentPage < lastPage) {
+    if (currentPage - 1 !== 1) {
+      data.push(DOTS);
+      data.push(currentPage - 1);
+    }
+    data.push(currentPage);
+    if (currentPage + 1 !== lastPage) {
+      data.push(currentPage + 1);
+      data.push(DOTS);
+    }
+  } else if (currentPage === 1 && lastPage > 3) {
+    data.push(currentPage + 1);
+    data.push(currentPage + 2);
+    data.push(DOTS);
+  } else if (currentPage === lastPage && lastPage > 3) {
+    data.push(DOTS);
+    data.push(currentPage - 2);
+    data.push(currentPage - 1);
+  }
+  if (lastPage > 1) {
+    data.push(lastPage);
+  }
+  return data;
+};
 
 function usePagination(props) {
   /*
@@ -17,31 +46,7 @@ function usePagination(props) {
     - No ellipses when there is only one page available.
   */
   const { currentPage, totalCount, pageSize } = props;
-  const lastPage = Math.ceil(totalCount / pageSize);
-  const pagination = [1];
-  if (currentPage > 1 && currentPage < lastPage) {
-    if (currentPage - 1 !== 1) {
-      pagination.push(DOTS);
-      pagination.push(currentPage - 1);
-    }
-    pagination.push(currentPage);
-    if (currentPage + 1 !== lastPage) {
-      pagination.push(currentPage + 1);
-      pagination.push(DOTS);
-    }
-  } else if (currentPage === 1 && lastPage > 3) {
-    pagination.push(currentPage + 1);
-    pagination.push(currentPage + 2);
-    pagination.push(DOTS);
-  } else if (currentPage === lastPage && lastPage > 3) {
-    pagination.push(DOTS);
-    pagination.push(currentPage - 2);
-    pagination.push(currentPage - 1);
-  }
-  if (lastPage > 1) {
-    pagination.push(lastPage);
-  }
-  return pagination;
+  return useMemo(() => getPagination(currentPage, totalCount, pageSize), [currentPage, totalCount, pageSize]);
 }
 
 usePagination.propTypes = {
